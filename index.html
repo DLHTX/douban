@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="referrer" content="never">
+    <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>豆瓣电影</title>
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_556052_pdohufedocpaatt9.css">
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+            box-sizing: border-box;
+            line-height: 1.5;
+        }
+        main{
+            height: calc(100vh - 50px);
+            overflow: scroll;
+            overflow-scrolling: touch;
+
+        }
+        footer{
+            display: flex;
+            text-align: center;
+            border-top: 1px solid #ccc;
+        }
+        footer div{
+            flex: 1;
+            padding-top: 10px;
+        }
+        footer div span{
+            display: block;
+        }
+        section{
+            display: none;
+        }
+        section:first-child{
+            display: block;
+        }
+        .active{
+            color: #c34324;
+        }
+
+        .item{
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+ }
+        .item img{
+            width: 70px;
+
+        }
+        .detail h1{
+            font-size: 18px;
+        }
+         .detail{
+            flex: 1;
+            padding-left: 10px;
+
+        }
+        .pfbox .pf{
+            color: #c34324;
+        }
+        a{
+            text-decoration: none;
+            flex: 1;
+            color: #333;}
+        .loading{
+            text-align: center;
+
+        }
+        @keyframes loading {
+            0%{
+                transform: rotate(0deg);
+            }
+            100%{
+                transform: rotate(360deg);
+            }
+        }
+        .icon-loading{
+            animation: loading 1s linear infinite;
+            display: inline-block;
+            font-size: 15px;
+            margin-top: 5px;
+        }
+        .searchbox input{
+            background-color: #eee;
+            outline: none;
+            border-radius: 2px;
+            width: calc(100% - 50px) ;
+            box-shadow: none;
+            border: none;
+            height: 25px;
+
+        }
+        .searchbox{
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .button{
+            background-color: #c34324;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 2px;
+        }
+
+
+
+
+
+    </style>
+</head>
+<body>
+<main>
+    <section>
+
+        <!--<div class="item">-->
+            <!--<img src="" alt="">-->
+            <!--<div class="detail">-->
+                <!--<h1>肖申克</h1>-->
+                <!--<div class="pfbox">-->
+                    <!--<span class="pf">9.6</span><span>分</span>-->
+                    <!--<span class="sc">12051</span><span>收藏</span>-->
+                <!--</div>-->
+                <!--<div class="nfbox">-->
+                    <!--<span class="year">1994</span><span>/</span>-->
+                    <!--<span class="class">犯罪/剧情</span>-->
+                <!--</div>-->
+                <!--<div class="dybox"><span>导演：</span><span class="dy">张一抹</span></div>-->
+                <!--<div class="yybox"><span>主演：</span><span class="yy">张一抹12312312313123</span></div>-->
+            <!--</div>-->
+        <!--</div>-->
+        <div class="top250"></div>
+        <div class="loading"><span class="iconfont icon-loading"></span></div>
+
+
+    </section>
+    <section >
+        <div class="beimei"></div>
+        <div class="loading"><span class="iconfont icon-loading"></span></div>
+    </section>
+    <section>
+        <div class="searchbox">
+            <span class="inputbox"><input type="text"></span>
+            <span class="button">搜索</span>
+        </div>
+        <div class="search"></div>
+
+
+
+    </section>
+</main>
+<footer>
+    <div class="active"><span class="iconfont icon-paiming"></span>Top250<span></span></div>
+    <div><span class="iconfont icon-us"></span><span>北美排行</span></div>
+    <div><span class="iconfont icon-find"></span><span>搜索</span></div>
+</footer>
+</body>
+
+<script>
+    var index = 0
+    $('main').scroll(function () {
+            if( $('section').height()-10<= $('main').height() + $('main').scrollTop() ){
+                Top250.load()
+            }
+        })
+var Top250 = {
+    init:function () {
+        this.start()
+
+    },
+    start:function () {
+        this.load(function () {
+            this.setData()
+        })
+    } ,
+
+    load:
+        function () {
+            var _this= this
+            $('.loading').show()
+            $.ajax({
+                url:'http://api.douban.com/v2/movie/top250',
+                type:'GET',
+                data:{
+                    start:index,
+                    count:20
+                },
+                dataType:'jsonp'
+            }).done(function (ret) {
+                _this.setData(ret)
+                index+=20
+            }).fail(function () {
+                console.log('error..')
+            }).always(function () {
+                $('.loading').hide()
+            })
+        },
+    setData:
+        function (ret) {
+            ret.subjects.forEach(function (movie) {
+            var list =
+                `<div class="item clearfix">
+                 <div class="cover"><img src="https://picsum.photos/200/200/?image=1" alt=""></div>
+                 <div class="detail">
+                 <a href="">
+                 <h1>肖申克</h1>
+                 <div class="pfbox">
+                     <span class="pf">9.6</span><span>分</span>
+                     <span class="sc">12051</span><span>收藏</span>
+                 </div>
+                 <div class="nfbox">
+                     <span class="year">1994</span><span>/</span>
+                    <span class="class">犯罪/剧情</span>
+                 </div>
+                 <div class="dybox"><span>导演：</span><span class="dy">张一抹</span></div>
+                 <div class="yybox"><span>主演：</span><span class="yy">张一抹12312312313123</span></div>
+                 </a></div>
+                 </div>`
+            var $node = $(list)
+            $node.find('img').attr('src',movie.images.medium)
+            $node.find('.detail h1').text(movie.title)
+            $node.find('.pf').text(movie.rating.average)
+            $node.find('.sc').text(movie.collect_count)
+            $node.find('.year').text(movie.year)
+            $node.find('a').attr('href',movie.alt)
+            $node.find('.class').text(movie.genres.join('/'))
+            $node.find('.dy').text(function () {
+            var dylist=[]
+                movie.directors.forEach(function (e) {
+
+                    dylist.push(e.name)
+                })
+                return dylist
+            })
+            $node.find('.yy').text(function () {
+                var yylist=[]
+                movie.casts.forEach(function (e) {
+                    yylist.push(e.name)
+                })
+                return yylist.join('/')
+            })
+            $('.top250').append($node)
+        })}
+}
+
+var US = {
+        init:function () {
+           this.start()
+        },
+        start:function () {
+            this.load(function () {
+                this.setData()
+            })
+        },
+        load:
+            function () {
+                var _this= this
+                $('.loading').show()
+                $.ajax({
+                    url:'http://api.douban.com/v2/movie/us_box',
+                    type:'GET',
+                    dataType:'jsonp'
+                }).done(function (ret) {
+                    _this.setData(ret)
+                }).fail(function () {
+                    console.log('error..')
+                }).always(function () {
+                    isLoading  = false
+                    $('.loading').hide()
+                })
+            },
+        setData: function (data) {
+            data.subjects.forEach(function (movie) {
+                movie = movie.subject
+                var list = `<div class="item clearfix">
+            <div class="cover"><img src="https://picsum.photos/200/200/?image=1" alt=""></div>
+            <div class="detail">
+            <a href="">
+                <h1>肖申克</h1>
+                <div class="pfbox">
+                    <span class="pf">9.6</span><span>分</span>
+                    <span class="sc">12051</span><span>收藏</span>
+                </div>
+                <div class="nfbox">
+                    <span class="year">1994</span><span>/</span>
+                    <span class="class">犯罪/剧情</span>
+                </div>
+                <div class="dybox"><span>导演：</span><span class="dy">张一抹</span></div>
+                <div class="yybox"><span>主演：</span><span class="yy">张一抹12312312313123</span></div>
+            </a></div>
+        </div>`
+                var $node = $(list)
+                $node.find('img').attr('src',movie.images.medium)
+                $node.find('.detail h1').text(movie.title)
+                $node.find('.pf').text(movie.rating.average)
+                $node.find('.sc').text(movie.collect_count)
+                $node.find('.year').text(movie.year)
+                $node.find('a').attr('href',movie.alt)
+                $node.find('.class').text(movie.genres.join('/'))
+                $node.find('.dy').text(function () {
+                    var dylist=[]
+                    movie.directors.forEach(function (e) {
+                        dylist.push(e.name)
+                    })
+                    return dylist
+                })
+                $node.find('.yy').text(function () {
+                    var yylist=[]
+                    movie.casts.forEach(function (e) {
+                        yylist.push(e.name)
+                    })
+                    return yylist.join('/')
+                })
+
+                $('.beimei').append($node)
+            })}
+    }
+
+var Search = {
+        init:function () {
+            this.start()
+        },
+        start:function () {
+            this.load(function () {
+                this.setData()
+            })
+        } ,
+
+        load:
+            function () {
+                var _this= this
+                var $keyword = $('input').val()
+                $('.button').on('click',function () {
+                   $('.loading').show()
+                    var this2= _this
+                    console.log($keyword)
+                   $.ajax({
+                       url:'http://api.douban.com/v2/movie/search',
+                       type:'GET',
+                       data:{
+                           q: $('input').val()
+                       },
+                       dataType:'jsonp'
+                   }).done(function (ret) {
+                       this2.setData(ret)
+                       console.log(ret)
+                   }).fail(function () {
+                       console.log('error..')
+                   }).always(function () {
+                       $('.loading').hide()
+                   })
+               })
+            },
+        setData:
+            function (ret) {
+                ret.subjects.forEach(function (movie) {
+                    var list =
+                        `<div class="item clearfix">
+                 <div class="cover"><img src="https://picsum.photos/200/200/?image=1" alt=""></div>
+                 <div class="detail">
+                 <a href="">
+                 <h1>肖申克</h1>
+                 <div class="pfbox">
+                     <span class="pf">9.6</span><span>分</span>
+                     <span class="sc">12051</span><span>收藏</span>
+                 </div>
+                 <div class="nfbox">
+                     <span class="year">1994</span><span>/</span>
+                    <span class="class">犯罪/剧情</span>
+                 </div>
+                 <div class="dybox"><span>导演：</span><span class="dy">张一抹</span></div>
+                 <div class="yybox"><span>主演：</span><span class="yy">张一抹12312312313123</span></div>
+                 </a></div>
+                 </div>`
+                    var $node = $(list)
+                    $node.find('img').attr('src',movie.images.medium)
+                    $node.find('.detail h1').text(movie.title)
+                    $node.find('.pf').text(movie.rating.average)
+                    $node.find('.sc').text(movie.collect_count)
+                    $node.find('.year').text(movie.year)
+                    $node.find('a').attr('href',movie.alt)
+                    $node.find('.class').text(movie.genres.join('/'))
+                    $node.find('.dy').text(function () {
+                        var dylist=[]
+                        movie.directors.forEach(function (e) {
+
+                            dylist.push(e.name)
+                        })
+                        return dylist
+                    })
+                    $node.find('.yy').text(function () {
+                        var yylist=[]
+                        movie.casts.forEach(function (e) {
+                            yylist.push(e.name)
+                        })
+                        return yylist.join('/')
+                    })
+                    $('.search').append($node)
+                })}
+    }
+
+
+    var app = {
+        init:function () {
+            this.start()
+            Top250.init()
+            US.init()
+            Search.init()
+
+        },
+        start:function () {
+                $('footer div').on('click',function () {
+                var index = $(this).index()
+                $(this).addClass('active').siblings().removeClass('active')
+                $('section').hide().eq(index).fadeIn()
+            })
+        }
+
+}
+app.init()
+
+
+
+
+
+</script>
+</html>
